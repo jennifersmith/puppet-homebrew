@@ -14,6 +14,8 @@ Puppet::Type.type(:package).provide :homebrew, :parent => Puppet::Provider::Pack
 
   confine :operatingsystem => :darwin
   commands :brewcmd => "/usr/local/bin/brew"
+  has_feature :versionable
+  has_feature :install_options
 
   def self.brewlist(hash)
     command = [command(:brewcmd), "list","--versions"]
@@ -66,8 +68,8 @@ Puppet::Type.type(:package).provide :homebrew, :parent => Puppet::Provider::Pack
 
   def install
     should = @resource.should(:ensure)
-
-    output = brewcmd "install", @resource[:name]
+    install_options = @resource[:install_options] || {}
+    output = brewcmd "install", "#{@resource[:name]}", install_options['flags'] 
     if output =~ /^Error: No available formula/
       raise Puppet::ExecutionFailure, "Could not find package #{@resource[:name]}"
     end
