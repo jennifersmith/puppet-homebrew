@@ -69,7 +69,11 @@ Puppet::Type.type(:package).provide :homebrew, :parent => Puppet::Provider::Pack
   def install
     should = @resource.should(:ensure)
     install_options = @resource[:install_options] || {}
-    output = brewcmd "install", "#{@resource[:name]}", install_options['flags'] 
+    if (install_options['flags']) 
+        output = brewcmd "install", "#{@resource[:name]}", install_options['flags']
+    else
+      output = brewcmd "install", "#{@resource[:name]}"
+    end
     if output =~ /^Error: No available formula/
       raise Puppet::ExecutionFailure, "Could not find package #{@resource[:name]}"
     end
